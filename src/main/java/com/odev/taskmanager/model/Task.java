@@ -1,12 +1,38 @@
 package com.odev.taskmanager.model;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
 public class Task {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String title;
     private String description;
     private String priority;
     private String userEmail;
 
+    // Constructor
+    public Task(String title, String description, String priority, String userEmail) {
+        this.title = title;
+        this.description = description;
+        this.priority = priority;
+        this.userEmail = userEmail;
+    }
+
     // Getters - Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public String getTitle() {
         return title;

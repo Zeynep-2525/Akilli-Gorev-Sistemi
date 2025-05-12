@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface TaskService {
     List<Task> getHighPriorityTasks();
+    Task saveTask(Task task);
+
 }

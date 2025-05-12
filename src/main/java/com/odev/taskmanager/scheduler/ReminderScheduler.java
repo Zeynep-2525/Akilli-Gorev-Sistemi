@@ -31,8 +31,8 @@ public class ReminderScheduler {
         this.motivationService = motivationService;
     }
 
-    // Her sabah saat 08:00'de çalışır
-    @Scheduled(cron = "0 0 8 * * *")
+    // Her sabah saat 08:00'de çalışır  * 0 8 **
+    @Scheduled(cron = "0 * * * * *")
     public void sendMorningReminders() {
         log.info("Zamanlayıcı çalıştı: Sabah hatırlatmaları gönderiliyor...");
 
