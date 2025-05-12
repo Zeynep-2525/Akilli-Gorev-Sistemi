@@ -20,12 +20,7 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendReminderEmail(String to, String taskDetails) {
-        String quote = motivationService.getMotivationalQuote();
-        String subject = "Task Reminder";
-        String body = "Don't forget your task: " + taskDetails + "\n\n" +
-                      " Motivation of the Day:\n" + quote;
-
+    public void sendEmail(String to, String subject, String body) {  // Metod ismini 3 parametreli olarak güncelledik
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);

@@ -1,5 +1,5 @@
 package com.odev.taskmanager.service;
 
 public interface EmailService {
-    void sendReminderEmail(String to, String taskDetails);
+    void sendEmail(String to, String subject, String body);
 }

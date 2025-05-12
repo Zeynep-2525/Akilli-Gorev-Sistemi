@@ -1,4 +1,4 @@
-package com.odev.task;
+package com.odev.taskmanager.model;
 
 public enum TaskPriority {
     LOW,

@@ -1,4 +1,4 @@
-package com.odev.task;
+package com.odev.taskmanager.task;
 
 import java.util.Scanner;
 import org.springframework.stereotype.Service;
