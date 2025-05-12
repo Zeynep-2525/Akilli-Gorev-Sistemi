@@ -9,17 +9,17 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class PdfRaporOlusturucu {
+public class PdfReportGenerator {
 
-    public void pdfOlusturucu() {
+    public void generatePdf() {
         //Görev servisi oluşturulup görevler alındı.
-        GorevServiceTest service = new GorevServiceTest();
-        List<Gorev> tumGorevler = service.gorevleriGetir();
+        TaskServiceTest service = new TaskServiceTest();
+        List<Task> allTasks = service.getTasks();
 
         try {
             //gorev_raporu adında yeni bir dosya oluşturuldu.
             Document document = new Document();
-            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("gorev_raporu.pdf"));
+            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("task_report.pdf"));
             document.open();
 
             //Metin fontları oluşturuldu.
@@ -70,15 +70,15 @@ public class PdfRaporOlusturucu {
             table.addCell(new PdfPCell(new Phrase("Date", headerFont)));
             table.addCell(new PdfPCell(new Phrase("Status", headerFont)));
 
-            List<Gorev> yapilacaklar = tumGorevler.stream()
-                    .filter(g -> !g.getDurum().equalsIgnoreCase("completed"))
+            List<Task> pendingTasks = allTasks.stream()
+                    .filter(t -> !t.getStatus().equalsIgnoreCase("completed"))
                     .collect(Collectors.toList());
 
-            for (Gorev g : yapilacaklar) {
-                table.addCell(new PdfPCell(new Phrase(g.getIsim(), normalFont)));
-                table.addCell(new PdfPCell(new Phrase(g.getAciklama(), normalFont)));
-                table.addCell(new PdfPCell(new Phrase(g.getZaman(), normalFont)));
-                table.addCell(new PdfPCell(new Phrase(g.getDurum(), normalFont)));
+            for (Task t : pendingTasks) {
+                table.addCell(new PdfPCell(new Phrase(t.getName(), normalFont)));
+                table.addCell(new PdfPCell(new Phrase(t.getDescription(), normalFont)));
+                table.addCell(new PdfPCell(new Phrase(t.getTime(), normalFont)));
+                table.addCell(new PdfPCell(new Phrase(t.getStatus(), normalFont)));
             }
 
             document.add(table);
@@ -86,44 +86,45 @@ public class PdfRaporOlusturucu {
             /* üçüncü sayfada görevlerin istatistikleri çıkarıldı.
             Yapılan görevler,bekleyen görevler ve tamamlanmış görevler kendi aralarında sıralanarak tablo oluşturuldu.*/
             document.newPage();
-            Paragraph istBaslik = new Paragraph("Task Status Statistics", titleFont);
-            istBaslik.setAlignment(Element.ALIGN_CENTER);
-            document.add(istBaslik);
+            Paragraph statTitle = new Paragraph("Task Status Statistics", titleFont);
+            statTitle.setAlignment(Element.ALIGN_CENTER);
+            document.add(statTitle);
             document.add(Chunk.NEWLINE);
 
-            for (String durum : new String[]{"completed", "pendıng", "delayed"}) {
-                Paragraph durumBaslik = new Paragraph(durum.toUpperCase(), new Font(Font.FontFamily.HELVETICA, 13, Font.BOLD));
-                durumBaslik.setSpacingBefore(10f);
-                document.add(durumBaslik);
+            for (String status : new String[]{"completed", "pending", "delayed"}) {
+                Paragraph statusTitle = new Paragraph(status.toUpperCase(), new Font(Font.FontFamily.HELVETICA, 13, Font.BOLD));
+                statusTitle.setSpacingBefore(10f);
+                document.add(statusTitle);
                 document.add(Chunk.NEWLINE);
 
-                PdfPTable durumTablosu = new PdfPTable(3);
-                durumTablosu.setWidthPercentage(100);
-                durumTablosu.setWidths(new float[]{2f, 5f, 3f});
-                durumTablosu.addCell(new PdfPCell(new Phrase("Task", headerFont)));
-                durumTablosu.addCell(new PdfPCell(new Phrase("Details", headerFont)));
-                durumTablosu.addCell(new PdfPCell(new Phrase("Date", headerFont)));
+                PdfPTable statusTable = new PdfPTable(3);
+                statusTable.setWidthPercentage(100);
+                statusTable.setWidths(new float[]{2f, 5f, 3f});
+                statusTable.addCell(new PdfPCell(new Phrase("Task", headerFont)));
+                statusTable.addCell(new PdfPCell(new Phrase("Details", headerFont)));
+                statusTable.addCell(new PdfPCell(new Phrase("Date", headerFont)));
 
-                List<Gorev> filtreli = tumGorevler.stream()
-                        .filter(g -> g.getDurum().equalsIgnoreCase(durum))
+                List<Task> filtered = allTasks.stream()
+                        .filter(t -> t.getStatus().equalsIgnoreCase(status))
                         .collect(Collectors.toList());
 
-                for (Gorev g : filtreli) {
-                    durumTablosu.addCell(new PdfPCell(new Phrase(g.getIsim(), normalFont)));
-                    durumTablosu.addCell(new PdfPCell(new Phrase(g.getAciklama(), normalFont)));
-                    durumTablosu.addCell(new PdfPCell(new Phrase(g.getZaman(), normalFont)));
+                for (Task t : filtered) {
+                    statusTable.addCell(new PdfPCell(new Phrase(t.getName(), normalFont)));
+                    statusTable.addCell(new PdfPCell(new Phrase(t.getDescription(), normalFont)));
+                    statusTable.addCell(new PdfPCell(new Phrase(t.getTime(), normalFont)));
                 }
 
-                document.add(durumTablosu);
+                document.add(statusTable);
                 document.add(Chunk.NEWLINE);
             }
 
             document.close();
-            System.out.println("PDF başarıyla oluşturuldu.");
+            System.out.println("PDF created successfully.");
 
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 }
+
 
