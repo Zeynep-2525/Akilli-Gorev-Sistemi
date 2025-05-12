@@ -27,7 +27,7 @@ public class PdfReportGenerator {
             Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
             Font normalFont = new Font(Font.FontFamily.HELVETICA, 11);
 
-            //Birinci sayfadaki başlık ve zaman yazıldı, yerleri ayarlandı.
+            //Birinci sayfadaki başlık ve zaman yazıldı, yerleri ayarlandi.
             Rectangle pageSize = document.getPageSize();
             float pageWidth = pageSize.getWidth();
             float pageHeight = pageSize.getHeight();
