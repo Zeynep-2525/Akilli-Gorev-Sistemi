@@ -1,9 +1,23 @@
 package org.example;
 
-import com.itextpdf.text.*;
-import com.itextpdf.text.pdf.*;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
+import com.itextpdf.kernel.geom.PageSize;
+import com.itextpdf.kernel.geom.Rectangle;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfPage;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.AreaBreak;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.TextAlignment;
+import com.itextpdf.io.font.constants.StandardFonts;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -11,120 +25,135 @@ import java.util.stream.Collectors;
 
 public class PdfReportGenerator {
 
-    public void generatePdf() {
-        //Görev servisi oluşturulup görevler alındı.
-        TaskServiceTest service = new TaskServiceTest();
-        List<Task> allTasks = service.getTasks();
+    private final PdfFont boldFont;
+    private final PdfFont normalFont;
 
-        try {
-            //gorev_raporu adında yeni bir dosya oluşturuldu.
-            Document document = new Document();
-            PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream("task_report.pdf"));
-            document.open();
+    public PdfReportGenerator() throws IOException {
+        this.boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
+        this.normalFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
+    }
 
-            //Metin fontları oluşturuldu.
-            Font titleFont = new Font(Font.FontFamily.HELVETICA, 16, Font.BOLD);
-            Font headerFont = new Font(Font.FontFamily.HELVETICA, 12, Font.BOLD);
-            Font normalFont = new Font(Font.FontFamily.HELVETICA, 11);
+    public void generatePdf(List<Task> tasks) throws IOException {
+        try (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(new FileOutputStream("task_report.pdf")));
+             Document document = new Document(pdfDoc)) {
 
-            //Birinci sayfadaki başlık ve zaman yazıldı, yerleri ayarlandı.
-            Rectangle pageSize = document.getPageSize();
-            float pageWidth = pageSize.getWidth();
-            float pageHeight = pageSize.getHeight();
+            // Page 1: Cover Page
+            createCoverPage(pdfDoc);
 
-            PdfContentByte canvas = writer.getDirectContent();
+            // Page 2: Tasks Table
+            document.add(new AreaBreak());
+            addTasksTable(document, tasks);
 
-            ColumnText.showTextAligned(
-                    canvas,
-                    Element.ALIGN_CENTER,
-                    new Phrase("Task Management Report", new Font(Font.FontFamily.HELVETICA, 24, Font.BOLD)),
-                    pageWidth / 2,
-                    pageHeight / 2,
-                    0
-            );
+            // Page 3: Statistics
+            document.add(new AreaBreak());
+            addStatisticsPage(document, tasks);
 
-            ColumnText.showTextAligned(
-                    canvas,
-                    Element.ALIGN_RIGHT,
-                    new Phrase("Creation Date: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-                            new Font(Font.FontFamily.HELVETICA, 10)),
-                    pageWidth - 36,
-                    36,
-                    0
-            );
-
-            document.newPage();
-
-            /*İkinci sayfada yapılmayan görevler isimleri,açıklamaları,zamanları
-             ve durumları yazılcak şekilde tablo olluşturuldu.*/
-            Paragraph title = new Paragraph("Tasks to be Done", titleFont);
-            title.setAlignment(Element.ALIGN_CENTER);
-            document.add(title);
-            document.add(Chunk.NEWLINE);
-
-            PdfPTable table = new PdfPTable(4);
-            table.setWidthPercentage(100);
-            table.setWidths(new float[]{2f, 4f, 3f, 2f});
-            table.addCell(new PdfPCell(new Phrase("Task", headerFont)));
-            table.addCell(new PdfPCell(new Phrase("Details", headerFont)));
-            table.addCell(new PdfPCell(new Phrase("Date", headerFont)));
-            table.addCell(new PdfPCell(new Phrase("Status", headerFont)));
-
-            List<Task> pendingTasks = allTasks.stream()
-                    .filter(t -> !t.getStatus().equalsIgnoreCase("completed"))
-                    .collect(Collectors.toList());
-
-            for (Task t : pendingTasks) {
-                table.addCell(new PdfPCell(new Phrase(t.getName(), normalFont)));
-                table.addCell(new PdfPCell(new Phrase(t.getDescription(), normalFont)));
-                table.addCell(new PdfPCell(new Phrase(t.getTime(), normalFont)));
-                table.addCell(new PdfPCell(new Phrase(t.getStatus(), normalFont)));
-            }
-
-            document.add(table);
-
-            /* üçüncü sayfada görevlerin istatistikleri çıkarıldı.
-            Yapılan görevler,bekleyen görevler ve tamamlanmış görevler kendi aralarında sıralanarak tablo oluşturuldu.*/
-            document.newPage();
-            Paragraph statTitle = new Paragraph("Task Status Statistics", titleFont);
-            statTitle.setAlignment(Element.ALIGN_CENTER);
-            document.add(statTitle);
-            document.add(Chunk.NEWLINE);
-
-            for (String status : new String[]{"completed", "pending", "delayed"}) {
-                Paragraph statusTitle = new Paragraph(status.toUpperCase(), new Font(Font.FontFamily.HELVETICA, 13, Font.BOLD));
-                statusTitle.setSpacingBefore(10f);
-                document.add(statusTitle);
-                document.add(Chunk.NEWLINE);
-
-                PdfPTable statusTable = new PdfPTable(3);
-                statusTable.setWidthPercentage(100);
-                statusTable.setWidths(new float[]{2f, 5f, 3f});
-                statusTable.addCell(new PdfPCell(new Phrase("Task", headerFont)));
-                statusTable.addCell(new PdfPCell(new Phrase("Details", headerFont)));
-                statusTable.addCell(new PdfPCell(new Phrase("Date", headerFont)));
-
-                List<Task> filtered = allTasks.stream()
-                        .filter(t -> t.getStatus().equalsIgnoreCase(status))
-                        .collect(Collectors.toList());
-
-                for (Task t : filtered) {
-                    statusTable.addCell(new PdfPCell(new Phrase(t.getName(), normalFont)));
-                    statusTable.addCell(new PdfPCell(new Phrase(t.getDescription(), normalFont)));
-                    statusTable.addCell(new PdfPCell(new Phrase(t.getTime(), normalFont)));
-                }
-
-                document.add(statusTable);
-                document.add(Chunk.NEWLINE);
-            }
-
-            document.close();
-            System.out.println("PDF created successfully.");
-
-        } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("PDF report generated successfully with 3 pages");
         }
     }
+
+    private void createCoverPage(PdfDocument pdfDoc) {
+        PdfPage page = pdfDoc.addNewPage(PageSize.A4);
+        PdfCanvas canvas = new PdfCanvas(page);
+        Rectangle pageSize = page.getPageSize();
+
+        // Title
+        canvas.beginText()
+                .setFontAndSize(boldFont, 30)
+                .moveText(pageSize.getWidth()/2 - 170, pageSize.getHeight()/2)
+                .showText("Task Management Report")
+                .endText();
+
+        // Date
+        canvas.beginText()
+                .setFontAndSize(normalFont, 10)
+                .moveText(pageSize.getWidth() - 150, 36)
+                .showText("Generated: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+                .endText();
+    }
+
+    private void addTasksTable(Document document, List<Task> tasks) {
+        document.add(new Paragraph("Pending Tasks")
+                .setFont(boldFont)
+                .setFontSize(18)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMarginBottom(20));
+
+        Table table = new Table(4);
+        table.setWidth(document.getPdfDocument().getDefaultPageSize().getWidth() - 72);
+
+        // Headers
+        table.addHeaderCell(createHeaderCell("Task"));
+        table.addHeaderCell(createHeaderCell("Description"));
+        table.addHeaderCell(createHeaderCell("Due Date"));
+        table.addHeaderCell(createHeaderCell("Status"));
+
+        // Rows
+        tasks.stream()
+                .filter(t -> !t.getStatus().equalsIgnoreCase("completed"))
+                .forEach(task -> {
+                    table.addCell(createCell(task.getName()));
+                    table.addCell(createCell(task.getDetails()));
+                    table.addCell(createCell(task.getDate()));
+                    table.addCell(createCell(task.getStatus()));
+                });
+
+        document.add(table);
+    }
+
+    private void addStatisticsPage(Document document, List<Task> tasks) {
+        document.add(new Paragraph("Task Statistics")
+                .setFont(boldFont)
+                .setFontSize(18)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMarginBottom(20));
+
+        // Status summary tables
+        String[] statuses = {"completed", "pendıng", "delayed"};
+        for (String status : statuses) {
+            addStatusTable(document, tasks, status);
+        }
+    }
+
+    private void addStatusTable(Document document, List<Task> tasks, String status) {
+        document.add(new Paragraph(status.toUpperCase())
+                .setFont(boldFont)
+                .setFontSize(14)
+                .setMarginTop(15));
+
+        Table table = new Table(3);
+        table.setWidth(document.getPdfDocument().getDefaultPageSize().getWidth() - 72);
+
+        // Headers
+        table.addHeaderCell(createHeaderCell("Task"));
+        table.addHeaderCell(createHeaderCell("Description"));
+        table.addHeaderCell(createHeaderCell("Due Date"));
+
+        // Rows
+        tasks.stream()
+                .filter(t -> t.getStatus().equalsIgnoreCase(status))
+                .forEach(task -> {
+                    table.addCell(createCell(task.getName()));
+                    table.addCell(createCell(task.getDetails()));
+                    table.addCell(createCell(task.getDate()));
+                });
+
+        document.add(table);
+    }
+
+    private Cell createHeaderCell(String text) {
+        return new Cell().add(new Paragraph(text).setFont(boldFont));
+    }
+
+    private Cell createCell(String text) {
+        return new Cell().add(new Paragraph(text).setFont(normalFont));
+    }
 }
+
+
+
+
+
+
 
 
