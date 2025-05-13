@@ -4,6 +4,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import java.time.LocalDateTime;
 
 @Entity
 public class Task {
@@ -16,13 +17,22 @@ public class Task {
     private String description;
     private String priority;
     private String userEmail;
+    private LocalDateTime dueDate;
 
     // Constructor
+    public Task(String title, String description, String priority, String userEmail, LocalDateTime dueDate) {
+        this.title = title;
+        this.description = description;
+        this.priority = priority;
+        this.userEmail = userEmail;
+        this.dueDate = dueDate;
+    }
     public Task(String title, String description, String priority, String userEmail) {
         this.title = title;
         this.description = description;
         this.priority = priority;
         this.userEmail = userEmail;
+        this.dueDate = LocalDateTime.now(); // Varsayılan olarak şu anki tarih
     }
 
     // Getters - Setters
@@ -64,5 +74,13 @@ public class Task {
 
     public void setUserEmail(String userEmail) {
         this.userEmail = userEmail;
+    }
+
+    public LocalDateTime getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(LocalDateTime dueDate) {
+        this.dueDate = dueDate;
     }
 }
