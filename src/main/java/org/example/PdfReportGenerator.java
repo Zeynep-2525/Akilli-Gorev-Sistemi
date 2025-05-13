@@ -1,20 +1,18 @@
 package org.example;
 
+import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
-import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfPage;
 import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.properties.TextAlignment;
-import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.colors.ColorConstants;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -35,41 +33,35 @@ public class PdfReportGenerator {
 
     public void generatePdf(List<Task> tasks) throws IOException {
         try (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(new FileOutputStream("task_report.pdf")));
-             Document document = new Document(pdfDoc)) {
+             Document document = new Document(pdfDoc, PageSize.A4)) {
 
-            // Page 1: Cover Page
-            createCoverPage(pdfDoc);
+            // Sayfa 1: Kapak
+            createCoverPage(pdfDoc, document);
 
-            // Page 2: Tasks Table
+            // Sayfa 2: Görev Tablosu
             document.add(new AreaBreak());
             addTasksTable(document, tasks);
 
-            // Page 3: Statistics
+            // Sayfa 3: İstatistikler
             document.add(new AreaBreak());
             addStatisticsPage(document, tasks);
 
-            System.out.println("PDF report generated successfully with 3 pages");
+            System.out.println("PDF raporu başarıyla oluşturuldu (3 sayfa).");
         }
     }
 
-    private void createCoverPage(PdfDocument pdfDoc) {
-        PdfPage page = pdfDoc.addNewPage(PageSize.A4);
-        PdfCanvas canvas = new PdfCanvas(page);
-        Rectangle pageSize = page.getPageSize();
+    private void createCoverPage(PdfDocument pdfDoc, Document document) {
+        document.add(new Paragraph("Task Management Report")
+                .setFont(boldFont)
+                .setFontSize(30)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setMarginTop(250));
 
-        // Title
-        canvas.beginText()
-                .setFontAndSize(boldFont, 30)
-                .moveText(pageSize.getWidth()/2 - 170, pageSize.getHeight()/2)
-                .showText("Task Management Report")
-                .endText();
-
-        // Date
-        canvas.beginText()
-                .setFontAndSize(normalFont, 10)
-                .moveText(pageSize.getWidth() - 150, 36)
-                .showText("Generated: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
-                .endText();
+        document.add(new Paragraph("Generated: " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+                .setFont(normalFont)
+                .setFontSize(10)
+                .setTextAlignment(TextAlignment.RIGHT)
+                .setMarginTop(430));
     }
 
     private void addTasksTable(Document document, List<Task> tasks) {
@@ -79,18 +71,20 @@ public class PdfReportGenerator {
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginBottom(20));
 
-        Table table = new Table(4);
-        table.setWidth(document.getPdfDocument().getDefaultPageSize().getWidth() - 72);
+        Table table = new Table(new float[]{2, 4, 2, 2});
+        float pageWidth = document.getPdfDocument().getDefaultPageSize().getWidth() - document.getLeftMargin() - document.getRightMargin();
+        table.setWidth(pageWidth);
 
-        // Headers
+
+        // Başlıklar
         table.addHeaderCell(createHeaderCell("Task"));
         table.addHeaderCell(createHeaderCell("Description"));
         table.addHeaderCell(createHeaderCell("Due Date"));
         table.addHeaderCell(createHeaderCell("Status"));
 
-        // Rows
+        // Satırlar
         tasks.stream()
-                .filter(t -> !t.getStatus().equalsIgnoreCase("completed"))
+                .filter(t -> !"completed".equalsIgnoreCase(t.getStatus()))
                 .forEach(task -> {
                     table.addCell(createCell(task.getName()));
                     table.addCell(createCell(task.getDetails()));
@@ -108,47 +102,58 @@ public class PdfReportGenerator {
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginBottom(20));
 
-        // Status summary tables
+        // Statü listesi (düzeltilmiş)
         String[] statuses = {"completed", "pendıng", "delayed"};
+
         for (String status : statuses) {
             addStatusTable(document, tasks, status);
         }
     }
 
     private void addStatusTable(Document document, List<Task> tasks, String status) {
+        List<Task> filtered = tasks.stream()
+                .filter(t -> status.equalsIgnoreCase(t.getStatus()))
+                .collect(Collectors.toList());
+
+        if (filtered.isEmpty()) return;
+
         document.add(new Paragraph(status.toUpperCase())
                 .setFont(boldFont)
                 .setFontSize(14)
                 .setMarginTop(15));
 
-        Table table = new Table(3);
-        table.setWidth(document.getPdfDocument().getDefaultPageSize().getWidth() - 72);
+        Table table = new Table(new float[]{2, 4, 2});
+        float pageWidth = document.getPdfDocument().getDefaultPageSize().getWidth() - document.getLeftMargin() - document.getRightMargin();
+        table.setWidth(pageWidth);
 
-        // Headers
+
         table.addHeaderCell(createHeaderCell("Task"));
         table.addHeaderCell(createHeaderCell("Description"));
         table.addHeaderCell(createHeaderCell("Due Date"));
 
-        // Rows
-        tasks.stream()
-                .filter(t -> t.getStatus().equalsIgnoreCase(status))
-                .forEach(task -> {
-                    table.addCell(createCell(task.getName()));
-                    table.addCell(createCell(task.getDetails()));
-                    table.addCell(createCell(task.getDate()));
-                });
+        for (Task task : filtered) {
+            table.addCell(createCell(task.getName()));
+            table.addCell(createCell(task.getDetails()));
+            table.addCell(createCell(task.getDate()));
+        }
 
         document.add(table);
     }
 
     private Cell createHeaderCell(String text) {
-        return new Cell().add(new Paragraph(text).setFont(boldFont));
+        Cell cell = new Cell().add(new Paragraph(text).setFont(boldFont));
+        cell.setBackgroundColor(ColorConstants.LIGHT_GRAY);
+        return cell;
     }
 
     private Cell createCell(String text) {
-        return new Cell().add(new Paragraph(text).setFont(normalFont));
+        return new Cell().add(new Paragraph(text)
+                .setFont(normalFont)
+                .setTextAlignment(TextAlignment.LEFT)
+                .setMargin(2));
     }
 }
+
 
 
 
