@@ -1,6 +1,8 @@
 package org.example;
 
 import com.itextpdf.io.font.constants.StandardFonts;
+import com.itextpdf.kernel.colors.DeviceCmyk;
+import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
@@ -38,9 +40,14 @@ public class PdfReportGenerator {
 
 
     private static final Color[] PRIORITY_COLORS = {
-            ColorConstants.PINK,      // HIGH
-            ColorConstants.MAGENTA,   // MEDIUM
-            ColorConstants.BLUE      // LOW
+            // HIGH - Dikkat çekici ama agresif olmayan kırmızı (90%C, 20%M, 0%Y, 10%K)
+            new DeviceCmyk(0.00f, 0.60f, 1.00f, 0.00f),
+
+            // MEDIUM - Uyarıcı turuncu (0%C, 60%M, 100%Y, 0%K)
+            new DeviceCmyk(0.80f, 0, 0.40f, 0.10f),
+
+            // LOW - Sakinleştirici mavi (100%C, 20%M, 0%Y, 10%K)
+            new DeviceCmyk(1.00f, 0.20f, 0.00f, 0.10f)
     };
 
     private int getPriorityIndex(PriorityLevel priority) {
@@ -115,43 +122,49 @@ public class PdfReportGenerator {
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginBottom(20));
 
-        Table table = new Table(UnitValue.createPercentArray(new float[]{15, 45, 15, 15,10}));
+
+
+        Table table = new Table(UnitValue.createPercentArray(new float[]{5,15, 50, 15, 15}));
         table.setWidth(UnitValue.createPercentValue(100));
         table.setFixedLayout();
 
-
+        table.addHeaderCell(createColoredHeaderCell("    "));
         table.addHeaderCell(createColoredHeaderCell("Task"));
         table.addHeaderCell(createColoredHeaderCell("Description"));
         table.addHeaderCell(createColoredHeaderCell("Due Date"));
-        table.addHeaderCell(createColoredHeaderCell("Status"));
         table.addHeaderCell(createColoredHeaderCell("Priority"));
 
 
 
         tasks.forEach(task -> {
             LocalDateTime dateTime = null;
+            boolean isDelayed = false;
             String dateStr = task.getDate();
 
             if (dateStr != null && !dateStr.trim().isEmpty()) {
                 try {
-                    // Önce tam tarih-saat formatını dene (HH:mm - dd.MM.yyyy)
                     try {
                         dateTime = LocalDateTime.parse(dateStr, DATE_TIME_FORMATTER);
                     } catch (DateTimeParseException e) {
-                        // Eğer saat bilgisi yoksa, sadece tarih olarak parse et
                         LocalDate date = LocalDate.parse(dateStr, DATE_FORMATTER);
-                        dateTime = date.atStartOfDay(); // Tarihi 00:00 saatine ayarla
+                        dateTime = date.atStartOfDay();
+                    }
+
+                    // Düzeltilmiş gecikme kontrolü
+                    if (!task.isCompleted() && dateTime.isBefore(LocalDateTime.now())) {
+                        isDelayed = true;
                     }
                 } catch (DateTimeParseException e) {
                     System.err.println("Geçersiz tarih formatı: " + dateStr);
                 }
             }
 
+            table.addCell(createStatusCell(task.isCompleted(), isDelayed));
             table.addCell(createTaskCell(task.getName(), getPriorityIndex(task.getPriority())));
             table.addCell(createDescriptionCell(task.getDetails()));
             table.addCell(createDateTimeCell(dateTime));
-            table.addCell(createStatusCell(task.getStatus(), true));
             table.addCell(createPriorityCell(task.getPriority()));
+
         });
 
 
@@ -224,7 +237,7 @@ public class PdfReportGenerator {
                 .setMarginTop(30)
                 .setMarginBottom(15));
 
-        String[] statusOrder = {"Completed", "Pendıng", "Delayed"};
+        String[] statusOrder = {"Completed", "Pending", "Delayed"};
 
         for (int i = 0; i < statusOrder.length; i++) {
             final int statusIndex = i;
@@ -238,13 +251,12 @@ public class PdfReportGenerator {
                     .setPadding(8)
                     .setMarginTop(20));
 
-            Table detailTable = new Table(UnitValue.createPercentArray(new float[]{15, 45, 15, 15, 10}));
+            Table detailTable = new Table(UnitValue.createPercentArray(new float[]{20, 50, 15, 15}));
             detailTable.setWidth(UnitValue.createPercentValue(100));
 
             detailTable.addHeaderCell(createColoredHeaderCell("Task"));
             detailTable.addHeaderCell(createColoredHeaderCell("Description"));
             detailTable.addHeaderCell(createColoredHeaderCell("Due Date"));
-            detailTable.addHeaderCell(createColoredHeaderCell("Status"));
             detailTable.addHeaderCell(createColoredHeaderCell("Priority"));
 
 
@@ -271,7 +283,6 @@ public class PdfReportGenerator {
                 detailTable.addCell(createTaskCell(task.getName(), statusIndex)); // Siyah
                 detailTable.addCell(createDescriptionCell(task.getDetails()));
                 detailTable.addCell(createDateTimeCell(dateTime));
-                detailTable.addCell(createStatusCell(task.getStatus(),false));
                 detailTable.addCell(createPriorityCell(task.getPriority()));
             });
 
@@ -280,23 +291,60 @@ public class PdfReportGenerator {
     }
 
     // Yardımcı Metodlar
-    private Cell createStatusCell(String status, boolean colored) {
-        Color statusColor = ColorConstants.BLACK;
-        if (colored) {
-            statusColor = "delayed".equalsIgnoreCase(status)
-                    ? ColorConstants.RED
-                    : ColorConstants.BLACK;
+    private Cell createStatusCell(boolean isCompleted, boolean isDelayed) {
+        String statusText;
+        Color statusColor;
+
+
+        if (isDelayed) {
+            statusText = "!";
+            statusColor = ColorConstants.RED;
+        } else {
+            statusText = " ";
+            statusColor = ColorConstants.BLACK;
         }
 
 
         return new Cell()
-                .add(new Paragraph(status)
+                .add(new Paragraph(statusText)
                         .setFont(normalFont)
-                        .setFontSize(10)
+                        .setFontSize(30)
                         .setFontColor(statusColor))
                 .setTextAlignment(TextAlignment.CENTER)
                 .setPadding(5);
     }
+
+    private boolean isTaskDelayed(Task task) {
+
+        if (task.isCompleted()) {
+            return false; // Tamamlanmış görevler "Delayed" sayılmaz
+        }
+
+        String dateStr = task.getDate();
+        if (dateStr == null || dateStr.trim().isEmpty()) {
+            return false; // Tarih yoksa "Delayed" değil
+        }
+
+        try {
+            // 1. "HH:mm - dd.MM.yyyy" formatını dene (e.g., "11:30 - 18.06.2024")
+            if (dateStr.contains(" - ")) {
+                LocalDateTime dueDateTime = LocalDateTime.parse(dateStr, DATE_TIME_FORMATTER);
+                return dueDateTime.isBefore(LocalDateTime.now());
+            }
+            // 2. Sadece "dd.MM.yyyy" formatıysa (e.g., "18.06.2024")
+            else {
+                LocalDate dueDate = LocalDate.parse(dateStr, DATE_FORMATTER);
+                return dueDate.isBefore(LocalDate.now());
+            }
+        } catch (DateTimeParseException e) {
+            System.err.println("Geçersiz tarih formatı: " + dateStr);
+            return false;
+        }
+    }
+
+
+
+
 
 
 
@@ -374,13 +422,31 @@ public class PdfReportGenerator {
 
     private long countByStatus(List<Task> tasks, String status) {
         return tasks.stream()
-                .filter(t -> t.getStatus().equalsIgnoreCase(status))
+                .filter(t -> {
+                    boolean isCompleted = t.isCompleted();
+                    boolean isDelayed = !isCompleted && isTaskDelayed(t);
+
+                    return switch (status.toLowerCase()) {
+                        case "completed" -> isCompleted;
+                        case "delayed" -> isDelayed;
+                        default -> !isCompleted && !isDelayed; // pending
+                    };
+                })
                 .count();
     }
 
     private List<Task> filterByStatus(List<Task> tasks, String status) {
         return tasks.stream()
-                .filter(t -> t.getStatus().equalsIgnoreCase(status))
+                .filter(t -> {
+                    boolean isCompleted = t.isCompleted();
+                    boolean isDelayed = !isCompleted && isTaskDelayed(t);
+
+                    return switch (status.toLowerCase()) {
+                        case "completed" -> isCompleted;
+                        case "delayed" -> isDelayed;
+                        default -> !isCompleted && !isDelayed; // pending
+                    };
+                })
                 .collect(Collectors.toList());
     }
 
