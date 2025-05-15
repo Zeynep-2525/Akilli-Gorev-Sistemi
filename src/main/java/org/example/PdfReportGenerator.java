@@ -2,7 +2,6 @@ package org.example;
 
 import com.itextpdf.io.font.constants.StandardFonts;
 import com.itextpdf.kernel.colors.DeviceCmyk;
-import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.font.PdfFont;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
@@ -32,8 +31,8 @@ public class PdfReportGenerator {
 
     private final PdfFont boldFont;
     private final PdfFont normalFont;
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm - dd.MM.yyyy");
+    static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm - dd.MM.yyyy");
 
 
 
@@ -291,7 +290,7 @@ public class PdfReportGenerator {
     }
 
     // Yardımcı Metodlar
-    private Cell createStatusCell(boolean isCompleted, boolean isDelayed) {
+     Cell createStatusCell(boolean isCompleted, boolean isDelayed) {
         String statusText;
         Color statusColor;
 
@@ -314,7 +313,7 @@ public class PdfReportGenerator {
                 .setPadding(5);
     }
 
-    private boolean isTaskDelayed(Task task) {
+     boolean isTaskDelayed(Task task) {
 
         if (task.isCompleted()) {
             return false; // Tamamlanmış görevler "Delayed" sayılmaz
@@ -349,7 +348,7 @@ public class PdfReportGenerator {
 
 
 
-    private Cell createColoredHeaderCell(String text) {
+     Cell createColoredHeaderCell(String text) {
         return new Cell()
                 .add(new Paragraph(text)
                         .setFont(boldFont)
@@ -360,7 +359,7 @@ public class PdfReportGenerator {
                 .setPadding(8);
     }
 
-    private Cell createTaskCell(String text, int priorityIndex) {
+     Cell createTaskCell(String text, int priorityIndex) {
         Color textColor = (priorityIndex >= 0 && priorityIndex < PRIORITY_COLORS.length)
                 ? PRIORITY_COLORS[priorityIndex]
                 : ColorConstants.BLACK;
@@ -380,7 +379,7 @@ public class PdfReportGenerator {
 
 
 
-    private Cell createDescriptionCell(String text) {
+     Cell createDescriptionCell(String text) {
         String displayText = text.length() > 150 ?
                 text.substring(0, 150) + "..." : text;
 
@@ -396,7 +395,7 @@ public class PdfReportGenerator {
 
 
 
-    private Cell createPriorityCell(PriorityLevel priority ) {
+     Cell createPriorityCell(PriorityLevel priority ) {
         return new Cell()
                 .add(new Paragraph(priority.toString())
                         .setFont(normalFont)
@@ -407,7 +406,7 @@ public class PdfReportGenerator {
     }
 
 
-    private Cell createDateTimeCell(LocalDateTime dateTime) {
+     Cell createDateTimeCell(LocalDateTime dateTime) {
         String text = (dateTime != null) ? dateTime.format(DATE_TIME_FORMATTER) : "-";
 
         return new Cell()
@@ -420,7 +419,7 @@ public class PdfReportGenerator {
     }
 
 
-    private long countByStatus(List<Task> tasks, String status) {
+     long countByStatus(List<Task> tasks, String status) {
         return tasks.stream()
                 .filter(t -> {
                     boolean isCompleted = t.isCompleted();
@@ -435,7 +434,7 @@ public class PdfReportGenerator {
                 .count();
     }
 
-    private List<Task> filterByStatus(List<Task> tasks, String status) {
+     List<Task> filterByStatus(List<Task> tasks, String status) {
         return tasks.stream()
                 .filter(t -> {
                     boolean isCompleted = t.isCompleted();
@@ -450,7 +449,7 @@ public class PdfReportGenerator {
                 .collect(Collectors.toList());
     }
 
-    private double calculatePercentage(long count, long total) {
+     double calculatePercentage(long count, long total) {
         return total == 0 ? 0 : (count * 100.0 / total);
     }
 }
