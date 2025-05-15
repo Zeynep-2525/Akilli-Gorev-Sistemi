@@ -2,6 +2,7 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.canvas.parser.PdfTextExtractor;
 import org.example.PdfReportGenerator;
+import org.example.PriorityLevel;
 import org.junit.jupiter.api.Test;
 import org.example.Task;
 
@@ -20,9 +21,9 @@ public class PdfReportGeneratorTest {
     public void testPdfGeneration_createsFile() throws IOException {
 
         List<Task> tasks = Arrays.asList(
-                new Task("Task 1", "Description 1", "2025-05-20", "pending"),
-                new Task("Task 2", "Description 2", "2025-05-21", "completed"),
-                new Task("Task 3", "Description 3", "2025-05-22", "delayed")
+                new Task("Task 1", "Description 1", "2025-05-20", "pending", PriorityLevel.MEDIUM),
+                new Task("Task 2", "Description 2", "2025-05-21", "completed",PriorityLevel.LOW),
+                new Task("Task 3", "Description 3", "2025-05-22", "delayed",PriorityLevel.HIGH)
 
                 );
 
@@ -50,9 +51,9 @@ public class PdfReportGeneratorTest {
     @Test
     public void testOnlyPendingTasksAreIncludedInTable() throws IOException {
         List<Task> tasks = Arrays.asList(
-                new Task("Meeting", "Weekly team sync", "10:00 - 15.06.2024", "pending"),
-                new Task("Presentation", "Product demo", "11:30 - 18.06.2024", "completed"),
-                new Task("Data Entry", "Customer records update", "09:00 - 14.06.2024", "delayed")
+                new Task("Meeting", "Weekly team sync", "10:00 - 15.06.2024", "pending",PriorityLevel.HIGH),
+                new Task("Presentation", "Product demo", "11:30 - 18.06.2024", "completed",PriorityLevel.HIGH),
+                new Task("Data Entry", "Customer records update", "09:00 - 14.06.2024", "delayed",PriorityLevel.HIGH)
         );
         PdfReportGenerator generator = new PdfReportGenerator();
         generator.generatePdf(tasks);
