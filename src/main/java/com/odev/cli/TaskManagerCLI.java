@@ -1,6 +1,6 @@
 package com.odev.cli;
 
-import com.odev.model.Task;
+import com.odev.taskmanager.model.Task;
 import com.odev.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -68,7 +68,7 @@ public class TaskManagerCLI implements CommandLineRunner {
 
                     Task newTask = new Task(title, description, priority, "java.tester.odev@gmail.com", deadline);
                     taskService.createTask(newTask);
-                    System.out.println("✅ Görev başarıyla eklendi.");
+                    System.out.println(" Görev başarıyla eklendi.");
                     break;
 
                 case 3:
@@ -92,14 +92,14 @@ public class TaskManagerCLI implements CommandLineRunner {
 
                     Task updatedTask = new Task(newTitle, newDesc, newPriority, "java.tester.odev@gmail.com", newDeadline);
                     boolean updated = taskService.updateTask(updateId, updatedTask);
-                    System.out.println(updated ? "✅ Görev güncellendi." : "⚠️ Görev bulunamadı.");
+                    System.out.println(updated ? "Görev güncellendi." : " Görev bulunamadı.");
                     break;
 
                 case 4:
                     System.out.print("Silinecek görev ID: ");
                     Long deleteId = Long.parseLong(scanner.nextLine());
                     boolean deleted = taskService.deleteTask(deleteId);
-                    System.out.println(deleted ? "🗑️ Görev silindi." : "⚠️ Görev bulunamadı.");
+                    System.out.println(deleted ? "Görev silindi." : " Görev bulunamadı.");
                     break;
 
                 case 5:

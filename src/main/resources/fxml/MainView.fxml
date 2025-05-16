@@ -2,11 +2,15 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <VBox spacing="15" alignment="CENTER" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.odev.controller.MainController"
-      stylesheets="@../styles/styles.css"
-      padding="20">
+      stylesheets="@../styles/styles.css">
+
+    <padding>
+        <Insets top="20.0" right="20.0" bottom="20.0" left="20.0"/>
+    </padding>
 
     <Label text="Smart Task Manager" styleClass="header"/>
 
@@ -17,4 +21,3 @@
 
     <ListView fx:id="taskListView" prefHeight="250"/>
 </VBox>
-
