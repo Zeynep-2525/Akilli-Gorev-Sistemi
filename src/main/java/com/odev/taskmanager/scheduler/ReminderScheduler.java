@@ -32,7 +32,7 @@ public class ReminderScheduler {
     }
 
     // Her sabah saat 08:00'de çalışır  * 0 8 **
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 8 * * * *")
     public void sendMorningReminders() {
         log.info("Zamanlayıcı çalıştı: Sabah hatırlatmaları gönderiliyor...");
 
