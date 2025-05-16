@@ -1,35 +1,26 @@
-package com.example.demo.service;
+package com.smarttaskmanager.repository;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.stereotype.Service;
+import com.smarttaskmanager.model.Task;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-@Service
-public class MailService {
+import java.util.List;
 
-    private static final Logger logger = LoggerFactory.getLogger(MailService.class);
+@Repository
+public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    private final JavaMailSender mailSender;
+    // Önceliği belirli bir seviyenin üstünde olan ve tamamlanmamış görevleri getir
+    List<Task> findByPriorityGreaterThanEqualAndCompletedFalse(int priority);
 
-    public MailService(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
+    // Belirli bir e-posta adresine ait görevleri getir
+    List<Task> findByUserEmail(String email);
 
-    public void sendSimpleMail(String to, String subject, String text) {
-        try {
-            SimpleMailMessage message = new SimpleMailMessage();
+    // Tamamlanmış görevleri getir
+    List<Task> findByCompletedTrue();
 
-            message.setTo(to);
-            message.setSubject(subject);
-            message.setText(text);
+    // Tamamlanmamış görevleri getir
+    List<Task> findByCompletedFalse();
 
-            mailSender.send(message);
-            logger.info("E-posta başarıyla gönderildi: {}", to);
-        } catch (MailException e) {
-            logger.error("E-posta gönderme hatası: {}", e.getMessage(), e);
-        }
-    }
+    // Belirli bir önceliğe sahip görevleri getir
+    List<Task> findByPriority(int priority);
 }

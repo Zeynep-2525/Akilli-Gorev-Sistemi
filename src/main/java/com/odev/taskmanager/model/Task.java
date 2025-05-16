@@ -1,9 +1,9 @@
 package com.odev.taskmanager.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,69 +18,40 @@ public class Task {
     private String priority;
     private String userEmail;
     private LocalDateTime dueDate;
+    private boolean isCompleted;
 
-    // Constructor
-    public Task(String title, String description, String priority, String userEmail, LocalDateTime dueDate) {
+    public Task() {
+    }
+
+    public Task(String title, String description, String priority, String userEmail, LocalDateTime dueDate, boolean isCompleted) {
         this.title = title;
         this.description = description;
         this.priority = priority;
         this.userEmail = userEmail;
         this.dueDate = dueDate;
-    }
-    public Task(String title, String description, String priority, String userEmail) {
-        this.title = title;
-        this.description = description;
-        this.priority = priority;
-        this.userEmail = userEmail;
-        this.dueDate = LocalDateTime.now(); // Varsayılan olarak şu anki tarih
+        this.isCompleted = isCompleted;
     }
 
-    // Getters - Setters
-    public Long getId() {
-        return id;
-    }
+    // Getters ve Setters
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
 
-    public String getTitle() {
-        return title;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public String getPriority() { return priority; }
+    public void setPriority(String priority) { this.priority = priority; }
 
-    public String getDescription() {
-        return description;
-    }
+    public String getUserEmail() { return userEmail; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public LocalDateTime getDueDate() { return dueDate; }
+    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
 
-    public String getPriority() {
-        return priority;
-    }
-
-    public void setPriority(String priority) {
-        this.priority = priority;
-    }
-
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public void setUserEmail(String userEmail) {
-        this.userEmail = userEmail;
-    }
-
-    public LocalDateTime getDueDate() {
-        return dueDate;
-    }
-
-    public void setDueDate(LocalDateTime dueDate) {
-        this.dueDate = dueDate;
-    }
+    public boolean isCompleted() { return isCompleted; }
+    public void setCompleted(boolean completed) { isCompleted = completed; }
 }
+

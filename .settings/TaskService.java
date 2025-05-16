@@ -27,14 +27,13 @@ public class TaskService {
         this.mailService = mailService;
     }
 
-    // Yeni görev ekleme (öncelik yüksekse e-posta gönderir)
     public Task addTask(Task task) {
         Task savedTask = taskRepository.save(task);
 
         if (task.getPriority() >= 4) {
             try {
                 mailService.sendSimpleMail(
-                        "senanazkaya0@email.com",
+                        task.getUserEmail(), // sabit adres yerine kullanıcıdan
                         "Öncelikli Görev Eklendi",
                         "Yeni görev eklendi: " + task.getName()
                 );
@@ -47,17 +46,14 @@ public class TaskService {
         return savedTask;
     }
 
-    // Tüm görevleri listele
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
     }
 
-    // ID’ye göre görev getir
     public Optional<Task> getTaskById(Long id) {
         return taskRepository.findById(id);
     }
 
-    // Görev sil
     public void deleteTask(Long id) {
         try {
             taskRepository.deleteById(id);
@@ -68,18 +64,16 @@ public class TaskService {
         }
     }
 
-    // Görev güncelle
     public Task updateTask(Task task) {
         Task updatedTask = taskRepository.save(task);
 
         if (updatedTask.isCompleted()) {
-            logTaskCompletion(updatedTask); // log.txt'ye yaz
+            logTaskCompletion(updatedTask);
         }
 
         return updatedTask;
     }
 
-    // Görev tamamlandığında log dosyasına yaz
     private void logTaskCompletion(Task task) {
         String logFilePath = "log.txt";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
@@ -95,7 +89,6 @@ public class TaskService {
         }
     }
 
-    // Öncelikli görevler için e-posta hatırlatması
     public void sendPriorityTaskReminder(Task task, String email) {
         if (task.getPriority() >= 4 && !task.isCompleted()) {
             String subject = "Öncelikli Görev Hatırlatması";
@@ -108,4 +101,10 @@ public class TaskService {
             }
         }
     }
+
+    // Zamanlayıcı için gerekli: Yüksek öncelikli ve tamamlanmamış görevleri getir
+    public List<Task> getHighPriorityTasks() {
+        return taskRepository.findByPriorityGreaterThanEqualAndCompletedFalse(4);
+    }
 }
+
