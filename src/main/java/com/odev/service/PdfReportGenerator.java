@@ -14,6 +14,8 @@ import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.layout.properties.UnitValue;
+import com.odev.taskmanager.model.TaskPriority;
+
 import org.springframework.stereotype.Service;
 
 
@@ -50,11 +52,11 @@ public class PdfReportGenerator {
             new DeviceCmyk(1.00f, 0.20f, 0.00f, 0.10f)
     };
 
-    private int getPriorityIndex(PriorityLevel priority) {
+    private int getPriorityIndex(TaskPriority priority) {
         return switch (priority) {
-            case High -> 0;
-            case Medium -> 1;
-            case Low -> 2;
+            case HIGH -> 0;
+            case MEDIUM -> 1;
+            case LOW -> 2;
         };
     }
 
@@ -396,7 +398,7 @@ public class PdfReportGenerator {
 
 
 
-     Cell createPriorityCell(PriorityLevel priority ) {
+     Cell createPriorityCell(TaskPriority priority ) {
         return new Cell()
                 .add(new Paragraph(priority.toString())
                         .setFont(normalFont)
