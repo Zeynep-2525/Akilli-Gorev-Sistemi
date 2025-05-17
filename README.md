@@ -111,11 +111,6 @@
 
 ## 1.) Sena Naz Kaya
 
-
-   ### Proje Kurulum
-   - Spring Boot proje yapısının oluşturulması (Spring Web, JPA, Mail ve Lombok bağımlılıklarıyla)
-   - Gerekli bağımlılıkların `pom.xml` dosyasına eklenmesi
-
    ### Veritabanı İşlemleri
    - Görev bilgilerini tutacak Entity sınıfının tasarlanması
    - CRUD işlemleri için Repository, Service ve Controller katmanlarının implementasyonu
@@ -133,6 +128,10 @@
    - Sistem entegrasyonlarının sağlanması
 
 ## 2.) Zeynep Topal
+
+### Proje Kurulum
+   - Spring Boot proje yapısının oluşturulması (Spring Web, JPA, Mail ve Lombok bağımlılıklarıyla)
+   - Gerekli bağımlılıkların `pom.xml` dosyasına eklenmesi
 
 ### Zamanlayıcı Geliştirme
 - Günlük e-posta hatırlatıcı sisteminin kurulumu
