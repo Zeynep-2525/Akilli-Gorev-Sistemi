@@ -10,7 +10,6 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -18,7 +17,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import com.odev.taskmanager.model.Task;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = PdfReportGenerator.class)
@@ -27,17 +25,19 @@ class PdfReportGeneratorTest {
     @Autowired
     private PdfReportGenerator pdfReportGenerator;
 
-    private List<Task> sampleTasks;
-
     @TempDir
     Path temporaryFolder;
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm - dd.MM.yyyy");
     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    //Örnek görev listesini hazırlar.
+
+    private List<Task> tasks;
+
+    
+
     @BeforeEach
-    void setUp() throws IOException {
-        sampleTasks = Arrays.asList(
+    void setUp() {
+    	  tasks = Arrays.asList(
             new Task("Task 1", "Görev 1 açıklaması", TaskPriority.HIGH, "user1@example.com", LocalDateTime.parse("12:30 - 15.06.2024", formatter), false),
             new Task("Task 2", "Görev 2 açıklaması", TaskPriority.MEDIUM, "user2@example.com", LocalDateTime.parse("00:00 - 16.06.2024", formatter), true),
             new Task("Task 3", "Uzun açıklama metni içeren görev 3, PDF'de kısaltılmalı", TaskPriority.LOW, "user3@example.com", LocalDateTime.parse("10:00 - 10.06.2024", formatter), false),
@@ -71,7 +71,11 @@ class PdfReportGeneratorTest {
                 "Tarihi olmayan görevler gecikmiş sayılmamalı.");
     }
 
-    
+    // Diğer test metotları aynı kalabilir
+
+
+
+
     @Test
     void shouldFormatDateTimeCorrectly() {
         // Tarih ve saat formatlama testi
