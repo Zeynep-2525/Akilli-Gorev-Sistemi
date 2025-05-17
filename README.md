@@ -87,9 +87,6 @@
 4. **JavaFX Arayüzü**:
   - javafx-maven-plugin ile ayrıca başlatılabilir.
 
-## Proje Yapısı
-
---------------------------
 
 ## Katkıda Bulunma
 
