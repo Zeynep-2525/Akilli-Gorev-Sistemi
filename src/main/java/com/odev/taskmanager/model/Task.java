@@ -1,6 +1,8 @@
 package com.odev.taskmanager.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -15,7 +17,10 @@ public class Task {
 
     private String title;
     private String description;
-    private String priority;
+
+    @Enumerated(EnumType.STRING)
+    private TaskPriority priority;
+
     private String userEmail;
     private LocalDateTime dueDate;
     private boolean isCompleted;
@@ -23,7 +28,7 @@ public class Task {
     public Task() {
     }
 
-    public Task(String title, String description, String priority, String userEmail, LocalDateTime dueDate, boolean isCompleted) {
+    public Task(String title, String description, TaskPriority priority, String userEmail, LocalDateTime dueDate, boolean isCompleted) {
         this.title = title;
         this.description = description;
         this.priority = priority;
@@ -42,8 +47,8 @@ public class Task {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public String getPriority() { return priority; }
-    public void setPriority(String priority) { this.priority = priority; }
+    public TaskPriority getPriority() { return priority; }
+    public void setPriority(TaskPriority priority) { this.priority = priority; }
 
     public String getUserEmail() { return userEmail; }
     public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
@@ -54,4 +59,3 @@ public class Task {
     public boolean isCompleted() { return isCompleted; }
     public void setCompleted(boolean completed) { isCompleted = completed; }
 }
-

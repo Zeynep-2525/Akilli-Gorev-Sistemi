@@ -2,6 +2,7 @@ package com.odev.taskmanager.controller;
 
 import com.odev.taskmanager.model.Task;
 import com.odev.taskmanager.service.TaskService;
+import com.odev.taskmanager.model.TaskPriority;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,7 +20,10 @@ public class TestTaskController {    //TEST İÇİN YAZDIM DÜZELTİLECEK-Zeynep
         Task task = new Task();
         task.setTitle("Test Görevi");
         task.setDescription("Bu sadece test için bir görevdir.");
-        task.setPriority("HIGH");
+
+        
+        task.setPriority(TaskPriority.valueOf("HIGH"));
+
         task.setUserEmail("java.tester.odev@gmail.com"); // Mailtrap'teki alıcı adresiyle eşleşmeli!
 
         return taskService.saveTask(task);

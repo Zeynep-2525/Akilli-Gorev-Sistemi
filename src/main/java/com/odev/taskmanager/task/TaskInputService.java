@@ -2,6 +2,8 @@ package com.odev.taskmanager.task;
 
 import java.util.Scanner;
 import org.springframework.stereotype.Service;
+import com.odev.taskmanager.model.Task;
+import com.odev.taskmanager.model.TaskPriority;
 
 @Service
 public class TaskInputService {

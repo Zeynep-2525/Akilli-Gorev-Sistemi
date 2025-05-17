@@ -1,6 +1,7 @@
 package com.odev.cli;
 
 import com.odev.taskmanager.model.Task;
+import com.odev.taskmanager.model.TaskPriority;
 import com.odev.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -54,7 +55,12 @@ public class TaskManagerCLI implements CommandLineRunner {
                     System.out.print("Açıklama: ");
                     String description = scanner.nextLine();
                     System.out.print("Öncelik (LOW, MEDIUM, HIGH): ");
-                    String priority = scanner.nextLine();
+                    String priorityStr = scanner.nextLine();
+                    TaskPriority priority = parsePriority(priorityStr);
+                    if (priority == null) {
+                        System.out.println("Geçersiz öncelik değeri. Görev eklenemedi.");
+                        break;
+                    }
                     System.out.print("Bitiş tarihi (yyyy-MM-dd): ");
                     String tarihGiris = scanner.nextLine();
 
@@ -68,19 +74,30 @@ public class TaskManagerCLI implements CommandLineRunner {
 
                     Task newTask = new Task(title, description, priority, "java.tester.odev@gmail.com", deadline,false);
                     taskService.createTask(newTask);
-                    System.out.println(" Görev başarıyla eklendi.");
+                    System.out.println("Görev başarıyla eklendi.");
                     break;
 
                 case 3:
                     System.out.print("Güncellenecek görev ID: ");
-                    Long updateId = Long.parseLong(scanner.nextLine());
+                    Long updateId;
+                    try {
+                        updateId = Long.parseLong(scanner.nextLine());
+                    } catch (Exception e) {
+                        System.out.println("Geçersiz ID girdiniz. Güncelleme başarısız.");
+                        break;
+                    }
 
                     System.out.print("Yeni başlık: ");
                     String newTitle = scanner.nextLine();
                     System.out.print("Yeni açıklama: ");
                     String newDesc = scanner.nextLine();
-                    System.out.print("Yeni öncelik: ");
-                    String newPriority = scanner.nextLine();
+                    System.out.print("Yeni öncelik (LOW, MEDIUM, HIGH): ");
+                    String newPriorityStr = scanner.nextLine();
+                    TaskPriority newPriorityEnum = parsePriority(newPriorityStr);
+                    if (newPriorityEnum == null) {
+                        System.out.println("Geçersiz öncelik değeri. Güncelleme başarısız.");
+                        break;
+                    }
                     System.out.print("Yeni bitiş tarihi (yyyy-MM-dd): ");
                     LocalDateTime newDeadline;
                     try {
@@ -90,16 +107,26 @@ public class TaskManagerCLI implements CommandLineRunner {
                         break;
                     }
 
-                    Task updatedTask = new Task(newTitle, newDesc, newPriority, "java.tester.odev@gmail.com", newDeadline,false);
-                    boolean updated = taskService.updateTask(updateId, updatedTask);
-                    System.out.println(updated ? "Görev güncellendi." : " Görev bulunamadı.");
+                    Task updatedTask = new Task(newTitle, newDesc, newPriorityEnum, "java.tester.odev@gmail.com", newDeadline,false);
+                    Task updatedTaskResult = taskService.updateTask(updateId, updatedTask);
+                    if (updatedTaskResult != null) {
+                        System.out.println("Görev güncellendi.");
+                    } else {
+                        System.out.println("Görev bulunamadı.");
+                    }
                     break;
 
                 case 4:
                     System.out.print("Silinecek görev ID: ");
-                    Long deleteId = Long.parseLong(scanner.nextLine());
+                    Long deleteId;
+                    try {
+                        deleteId = Long.parseLong(scanner.nextLine());
+                    } catch (Exception e) {
+                        System.out.println("Geçersiz ID girdiniz. Silme başarısız.");
+                        break;
+                    }
                     boolean deleted = taskService.deleteTask(deleteId);
-                    System.out.println(deleted ? "Görev silindi." : " Görev bulunamadı.");
+                    System.out.println(deleted ? "Görev silindi." : "Görev bulunamadı.");
                     break;
 
                 case 5:
@@ -112,5 +139,13 @@ public class TaskManagerCLI implements CommandLineRunner {
             }
         }
     }
-}
 
+    // Yardımcı metod: String'i TaskPriority enum'una çevirir
+    private TaskPriority parsePriority(String priorityStr) {
+        try {
+            return TaskPriority.valueOf(priorityStr.toUpperCase());
+        } catch (IllegalArgumentException | NullPointerException e) {
+            return null;
+        }
+    }
+}
