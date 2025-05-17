@@ -66,7 +66,7 @@ public class TaskManagerCLI implements CommandLineRunner {
                         break;
                     }
 
-                    Task newTask = new Task(title, description, priority, "java.tester.odev@gmail.com", deadline);
+                    Task newTask = new Task(title, description, priority, "java.tester.odev@gmail.com", deadline,false);
                     taskService.createTask(newTask);
                     System.out.println(" Görev başarıyla eklendi.");
                     break;
@@ -90,7 +90,7 @@ public class TaskManagerCLI implements CommandLineRunner {
                         break;
                     }
 
-                    Task updatedTask = new Task(newTitle, newDesc, newPriority, "java.tester.odev@gmail.com", newDeadline);
+                    Task updatedTask = new Task(newTitle, newDesc, newPriority, "java.tester.odev@gmail.com", newDeadline,false);
                     boolean updated = taskService.updateTask(updateId, updatedTask);
                     System.out.println(updated ? "Görev güncellendi." : " Görev bulunamadı.");
                     break;

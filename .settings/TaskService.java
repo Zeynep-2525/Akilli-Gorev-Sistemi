@@ -30,14 +30,14 @@ public class TaskService {
     public Task addTask(Task task) {
         Task savedTask = taskRepository.save(task);
 
-        if (task.getPriority() >= 4) {
+        if ("HIGH".equalsIgnoreCase(task.getPriority())) {
             try {
                 mailService.sendSimpleMail(
-                        task.getUserEmail(), // sabit adres yerine kullanıcıdan
+                        task.getUserEmail(),
                         "Öncelikli Görev Eklendi",
-                        "Yeni görev eklendi: " + task.getName()
+                        "Yeni görev eklendi: " + task.getTitle()
                 );
-                logger.info("Öncelikli görev için e-posta gönderildi: {}", task.getName());
+                logger.info("Öncelikli görev için e-posta gönderildi: {}", task.getTitle());
             } catch (Exception e) {
                 logger.error("E-posta gönderimi sırasında hata oluştu: {}", e.getMessage(), e);
             }
@@ -66,33 +66,56 @@ public class TaskService {
 
     public Task updateTask(Task task) {
         Task updatedTask = taskRepository.save(task);
-
         if (updatedTask.isCompleted()) {
             logTaskCompletion(updatedTask);
         }
-
         return updatedTask;
+    }
+
+    //  CLI için kullanılacak doğru güncelleme metodu
+    public boolean updateTask(Long id, Task updatedTask) {
+        Optional<Task> optionalTask = taskRepository.findById(id);
+
+        if (optionalTask.isPresent()) {
+            Task existingTask = optionalTask.get();
+            existingTask.setTitle(updatedTask.getTitle());
+            existingTask.setDescription(updatedTask.getDescription());
+            existingTask.setPriority(updatedTask.getPriority());
+            existingTask.setDueDate(updatedTask.getDueDate());
+            existingTask.setCompleted(updatedTask.isCompleted());
+            existingTask.setUserEmail(updatedTask.getUserEmail());
+
+            taskRepository.save(existingTask);
+
+            if (existingTask.isCompleted()) {
+                logTaskCompletion(existingTask);
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
     private void logTaskCompletion(Task task) {
         String logFilePath = "log.txt";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
         String timestamp = LocalDateTime.now().format(formatter);
-        String logEntry = "[" + timestamp + "] Görev tamamlandı: \"" + task.getName() + "\"";
+        String logEntry = "[" + timestamp + "] Görev tamamlandı: \"" + task.getTitle() + "\"";
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(logFilePath, true))) {
             writer.write(logEntry);
             writer.newLine();
-            logger.info("Tamamlanan görev loglandı: {}", task.getName());
+            logger.info("Tamamlanan görev loglandı: {}", task.getTitle());
         } catch (IOException e) {
             logger.error("Log dosyasına yazılırken hata oluştu: {}", e.getMessage(), e);
         }
     }
 
     public void sendPriorityTaskReminder(Task task, String email) {
-        if (task.getPriority() >= 4 && !task.isCompleted()) {
+        if ("HIGH".equalsIgnoreCase(task.getPriority()) && !task.isCompleted()) {
             String subject = "Öncelikli Görev Hatırlatması";
-            String text = "Görev: " + task.getName() + " tamamlanmamış. Lütfen kontrol edin.";
+            String text = "Görev: " + task.getTitle() + " tamamlanmamış. Lütfen kontrol edin.";
             try {
                 mailService.sendSimpleMail(email, subject, text);
                 logger.info("Hatırlatma e-postası gönderildi: {}", email);
@@ -102,9 +125,7 @@ public class TaskService {
         }
     }
 
-    // Zamanlayıcı için gerekli: Yüksek öncelikli ve tamamlanmamış görevleri getir
     public List<Task> getHighPriorityTasks() {
-        return taskRepository.findByPriorityGreaterThanEqualAndCompletedFalse(4);
+        return taskRepository.findByPriorityGreaterThanEqualAndCompletedFalse("HIGH");
     }
 }
-
