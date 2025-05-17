@@ -15,6 +15,7 @@ import com.itextpdf.kernel.colors.Color;
 import com.itextpdf.kernel.colors.ColorConstants;
 import com.itextpdf.layout.properties.UnitValue;
 import com.odev.taskmanager.model.TaskPriority;
+import com.odev.taskmanager.model.Task;
 
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,13 +42,13 @@ public class PdfReportGenerator {
 
 
     private static final Color[] PRIORITY_COLORS = {
-            // HIGH - Dikkat çekici ama agresif olmayan kırmızı (90%C, 20%M, 0%Y, 10%K)
+            
             new DeviceCmyk(0.00f, 0.60f, 1.00f, 0.00f),
 
-            // MEDIUM - Uyarıcı turuncu (0%C, 60%M, 100%Y, 0%K)
+            
             new DeviceCmyk(0.80f, 0, 0.40f, 0.10f),
 
-            // LOW - Sakinleştirici mavi (100%C, 20%M, 0%Y, 10%K)
+            
             new DeviceCmyk(1.00f, 0.20f, 0.00f, 0.10f)
     };
 
@@ -139,32 +139,20 @@ public class PdfReportGenerator {
 
 
         tasks.forEach(task -> {
-            LocalDateTime dateTime = null;
-            boolean isDelayed = false;
-            String dateStr = task.getDate();
+        	LocalDateTime dueDateTime = task.getDueDate(); 
+        	boolean isDelayed = false;
 
-            if (dateStr != null && !dateStr.trim().isEmpty()) {
-                try {
-                    try {
-                        dateTime = LocalDateTime.parse(dateStr, DATE_TIME_FORMATTER);
-                    } catch (DateTimeParseException e) {
-                        LocalDate date = LocalDate.parse(dateStr, DATE_FORMATTER);
-                        dateTime = date.atStartOfDay();
-                    }
-
-                    // Düzeltilmiş gecikme kontrolü
-                    if (!task.isCompleted() && dateTime.isBefore(LocalDateTime.now())) {
-                        isDelayed = true;
-                    }
-                } catch (DateTimeParseException e) {
-                    System.err.println("Geçersiz tarih formatı: " + dateStr);
-                }
-            }
+        	if (dueDateTime != null) {
+        	    
+        	    if (!task.isCompleted() && dueDateTime.isBefore(LocalDateTime.now())) {
+        	        isDelayed = true;
+        	    }
+        	}
 
             table.addCell(createStatusCell(task.isCompleted(), isDelayed));
-            table.addCell(createTaskCell(task.getName(), getPriorityIndex(task.getPriority())));
-            table.addCell(createDescriptionCell(task.getDetails()));
-            table.addCell(createDateTimeCell(dateTime));
+            table.addCell(createTaskCell(task.getTitle(), getPriorityIndex(task.getPriority())));
+            table.addCell(createDescriptionCell(task.getDescription()));
+            table.addCell(createDateTimeCell(dueDateTime));
             table.addCell(createPriorityCell(task.getPriority()));
 
         });
@@ -182,10 +170,10 @@ public class PdfReportGenerator {
                 .setTextAlignment(TextAlignment.CENTER)
                 .setMarginBottom(30));
 
-        // 1. Dağılım Grafiği
+        
         addDistributionChart(document, tasks);
 
-        // 2. Durum Detayları
+        
         addStatusDetails(document, tasks);
     }
 
@@ -210,7 +198,7 @@ public class PdfReportGenerator {
             chart.addCell(new Cell()
                     .add(new Paragraph(status)
                             .setFont(boldFont)
-                            .setFontColor(ColorConstants.BLACK)) // Statü renginde yazı
+                            .setFontColor(ColorConstants.BLACK)) 
                     .setPadding(5));
 
             chart.addCell(new Cell()
@@ -264,27 +252,11 @@ public class PdfReportGenerator {
 
             filteredTasks.forEach(task -> {
 
-                LocalDateTime dateTime = null;
-                String dateStr = task.getDate();
+            	LocalDateTime dueDateTime = task.getDueDate();
 
-                if (dateStr != null && !dateStr.trim().isEmpty()) {
-                    try {
-                        try {
-                            dateTime = LocalDateTime.parse(dateStr, DATE_TIME_FORMATTER);
-                        } catch (DateTimeParseException e) {
-                            LocalDate date = LocalDate.parse(dateStr, DATE_FORMATTER);
-                            dateTime = date.atStartOfDay();
-                        }
-                    } catch (DateTimeParseException e) {
-                        System.err.println("Invalid date format: '" + dateStr + "'. Expected format: " +
-                                DATE_FORMATTER + " or " + DATE_TIME_FORMATTER);
-
-                    }
-                }
-
-                detailTable.addCell(createTaskCell(task.getName(), statusIndex)); // Siyah
-                detailTable.addCell(createDescriptionCell(task.getDetails()));
-                detailTable.addCell(createDateTimeCell(dateTime));
+                detailTable.addCell(createTaskCell(task.getTitle(), statusIndex)); 
+                detailTable.addCell(createDescriptionCell(task.getDescription()));
+                detailTable.addCell(createDateTimeCell(dueDateTime));
                 detailTable.addCell(createPriorityCell(task.getPriority()));
             });
 
@@ -317,32 +289,11 @@ public class PdfReportGenerator {
     }
 
      boolean isTaskDelayed(Task task) {
-
-        if (task.isCompleted()) {
-            return false; // Tamamlanmış görevler "Delayed" sayılmaz
-        }
-
-        String dateStr = task.getDate();
-        if (dateStr == null || dateStr.trim().isEmpty()) {
-            return false; // Tarih yoksa "Delayed" değil
-        }
-
-        try {
-            // 1. "HH:mm - dd.MM.yyyy" formatını dene (e.g., "11:30 - 18.06.2024")
-            if (dateStr.contains(" - ")) {
-                LocalDateTime dueDateTime = LocalDateTime.parse(dateStr, DATE_TIME_FORMATTER);
-                return dueDateTime.isBefore(LocalDateTime.now());
-            }
-            // 2. Sadece "dd.MM.yyyy" formatıysa (e.g., "18.06.2024")
-            else {
-                LocalDate dueDate = LocalDate.parse(dateStr, DATE_FORMATTER);
-                return dueDate.isBefore(LocalDate.now());
-            }
-        } catch (DateTimeParseException e) {
-            System.err.println("Geçersiz tarih formatı: " + dateStr);
-            return false;
-        }
-    }
+    	    if (task.isCompleted() || task.getDueDate() == null) {
+    	        return false;
+    	    }
+    	    return task.getDueDate().isBefore(LocalDateTime.now());
+    	}
 
 
 
@@ -431,7 +382,7 @@ public class PdfReportGenerator {
                     return switch (status.toLowerCase()) {
                         case "completed" -> isCompleted;
                         case "delayed" -> isDelayed;
-                        default -> !isCompleted && !isDelayed; // pending
+                        default -> !isCompleted && !isDelayed; 
                     };
                 })
                 .count();
@@ -446,7 +397,7 @@ public class PdfReportGenerator {
                     return switch (status.toLowerCase()) {
                         case "completed" -> isCompleted;
                         case "delayed" -> isDelayed;
-                        default -> !isCompleted && !isDelayed; // pending
+                        default -> !isCompleted && !isDelayed; 
                     };
                 })
                 .collect(Collectors.toList());
@@ -456,3 +407,4 @@ public class PdfReportGenerator {
         return total == 0 ? 0 : (count * 100.0 / total);
     }
 }
+
