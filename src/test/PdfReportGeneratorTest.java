@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import com.odev.taskmanager.model.Task;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,45 +32,46 @@ class PdfReportGeneratorTest {
     @TempDir
     Path temporaryFolder;
 
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm - dd.MM.yyyy");
+    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     //Örnek görev listesini hazırlar.
     @BeforeEach
     void setUp() throws IOException {
         sampleTasks = Arrays.asList(
-                new Task("Task 1", "Görev 1 açıklaması", "12:30 - 15.06.2024", false, TaskPriority.HIGH),
-                new Task("Task 2", "Görev 2 açıklaması", "16.06.2024", true, TaskPriority.MEDIUM),
-                new Task("Task 3", "Uzun açıklama metni içeren görev 3, PDF'de kısaltılmalı", "10:00 - 10.06.2024", false, TaskPriority.LOW),
-                new Task("Task 4", "Tarihsiz görev", null, false, TaskPriority.MEDIUM),
-                new Task("Task 5", "Tamamlanmış ve geçmiş tarihli görev", "01.01.2024", true, TaskPriority.HIGH)
+            new Task("Task 1", "Görev 1 açıklaması", TaskPriority.HIGH, "user1@example.com", LocalDateTime.parse("12:30 - 15.06.2024", formatter), false),
+            new Task("Task 2", "Görev 2 açıklaması", TaskPriority.MEDIUM, "user2@example.com", LocalDateTime.parse("00:00 - 16.06.2024", formatter), true),
+            new Task("Task 3", "Uzun açıklama metni içeren görev 3, PDF'de kısaltılmalı", TaskPriority.LOW, "user3@example.com", LocalDateTime.parse("10:00 - 10.06.2024", formatter), false),
+            new Task("Task 4", "Tarihsiz görev", TaskPriority.MEDIUM, "user4@example.com", null, false),
+            new Task("Task 5", "Tamamlanmış ve geçmiş tarihli görev", TaskPriority.HIGH, "user5@example.com", LocalDateTime.parse("00:00 - 01.01.2024", formatter), true)
         );
     }
 
     @Test
     void shouldCorrectlyIdentifyDelayedTasks() {
         // Tamamlanmış ve geçmiş tarihli görev gecikmiş sayılmamalı
-        Task completedPastTask = new Task("Tamamlanmış Görev", "Açıklama", "01.01.2020", true, );
+        Task completedPastTask = new Task("Tamamlanmış Görev", "Açıklama", TaskPriority.HIGH, "user@example.com", LocalDateTime.parse("00:00 - 01.01.2020", formatter), true);
         assertFalse(pdfReportGenerator.isTaskDelayed(completedPastTask),
                 "Tamamlanmış görevler geçmiş tarih olsa bile gecikmiş sayılmamalı.");
 
         // Gelecekteki tarihli görev gecikmiş sayılmamalı
-        Task futureTask = new Task("Gelecekteki Görev", "Açıklama",
-                LocalDate.now().plusDays(1).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-                false, TaskPriority.MEDIUM);
+        LocalDateTime futureDate = LocalDate.now().plusDays(1).atStartOfDay();
+        Task futureTask = new Task("Gelecekteki Görev", "Açıklama", TaskPriority.MEDIUM, "user@example.com", futureDate, false);
         assertFalse(pdfReportGenerator.isTaskDelayed(futureTask),
                 "Gelecekteki tarihli görevler gecikmiş sayılmamalı.");
 
         // Tamamlanmamış ve geçmiş tarihli görev gecikmiş sayılmalı
-        Task overdueTask = new Task("Gecikmiş Görev", "Açıklama",
-                LocalDate.now().minusDays(1).format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-                false,TaskPriority.LOW );
+        LocalDateTime pastDate = LocalDate.now().minusDays(1).atStartOfDay();
+        Task overdueTask = new Task("Gecikmiş Görev", "Açıklama", TaskPriority.LOW, "user@example.com", pastDate, false);
         assertTrue(pdfReportGenerator.isTaskDelayed(overdueTask),
                 "Geçmiş tarihli ve tamamlanmamış görevler gecikmiş sayılmalı.");
 
         // Tarihi olmayan görev gecikmiş sayılmamalı
-        Task taskWithoutDate = new Task("Tarihsiz Görev", "Açıklama", null, false, TaskPriority.HIGH);
+        Task taskWithoutDate = new Task("Tarihsiz Görev", "Açıklama", TaskPriority.HIGH, "user@example.com", null, false);
         assertFalse(pdfReportGenerator.isTaskDelayed(taskWithoutDate),
                 "Tarihi olmayan görevler gecikmiş sayılmamalı.");
     }
 
+    
     @Test
     void shouldFormatDateTimeCorrectly() {
         // Tarih ve saat formatlama testi
