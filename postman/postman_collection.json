@@ -1,1 +1,300 @@
-
+{
+	"info": {
+		"_postman_id": "b164abf1-d923-481a-9f42-81716d02ae23",
+		"name": "MyProject API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "44752875",
+		"_collection_link": "https://selinay-1245362.postman.co/workspace/Selinay-'s-Workspace~042001a2-e4ab-4f53-830f-48042aeac765/collection/44752875-b164abf1-d923-481a-9f42-81716d02ae23?action=share&source=collection_link&creator=44752875"
+	},
+	"item": [
+		{
+			"name": "CreateTask",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Yeni Görev\",\r\n  \"description\": \"Görev açıklaması\",\r\n  \"isCompleted\": false,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"20-05-2025\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/tasks\n",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"tasks\n"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "CreateTask",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": null,
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\r\n  \"id\": 1,\r\n  \"name\": \"Ödev Yap\",\r\n  \"description\": \"Matematik ödevini bitir\",\r\n  \"isCompleted\": false,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"20-05-2025\"\r\n}\r\n"
+				}
+			]
+		},
+		{
+			"name": "UpdateTask",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Güncellenmiş Görev\",\r\n  \"description\": \"Görev açıklaması güncellendi\",\r\n  \"isCompleted\": true,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"2025-06-01\"\r\n}\r\n\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/tasks/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"tasks",
+						"1"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "UpdateTask",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"description": "{id} yerine güncellemek istediğiniz görevin ID’sini yazınız.",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Güncellenmiş Görev\",\r\n  \"description\": \"Görev açıklaması güncellendi\",\r\n  \"isCompleted\": true,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"2025-06-01\"\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/tasks/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks",
+								"1"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n  \"id\": 1,\r\n  \"name\": \"Güncellenmiş Görev\",\r\n  \"description\": \"Görev açıklaması güncellendi\",\r\n  \"isCompleted\": true,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"01-06-2025\"\r\n}"
+				}
+			]
+		},
+		{
+			"name": "GetAllTasks",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/tasks",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"tasks"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GetAllTasks",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tasks",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "[\r\n  {\r\n    \"id\": 1,\r\n    \"name\": \"Ödev Yap\",\r\n    \"description\": \"Matematik ödevini bitir\",\r\n    \"isCompleted\": false,\r\n    \"priority\": 3,\r\n    \"dueDate\": \"20-05-2025\"\r\n  },\r\n  {\r\n    \"id\": 2,\r\n    \"name\": \"Kitap Oku\",\r\n    \"description\": \"Roman oku\",\r\n    \"isCompleted\": true,\r\n    \"priority\": 2,\r\n    \"dueDate\": \"15-05-2025\"\r\n  }\r\n]"
+				}
+			]
+		},
+		{
+			"name": "GetTaskById",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/tasks/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"tasks",
+						"1"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "GetTaskById",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tasks/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks",
+								"1"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": "{\r\n  \"id\": 1,\r\n  \"name\": \"Ödev Yap\",\r\n  \"description\": \"Matematik ödevini bitir\",\r\n  \"isCompleted\": false,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"20-05-2025\"\r\n}\r\n"
+				}
+			]
+		},
+		{
+			"name": "DeleteTask",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/api/tasks/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"tasks",
+						"1"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "DeleteTask",
+					"originalRequest": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8080/api/tasks/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"tasks",
+								"1"
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": null
+				}
+			]
+		}
+	]
+}
