@@ -36,7 +36,7 @@
 					"port": "8080",
 					"path": [
 						"api",
-						"tasks\n"
+						"tasks"
 					]
 				}
 			},
@@ -196,7 +196,7 @@
 					"_postman_previewlanguage": null,
 					"header": null,
 					"cookie": [],
-					"body": "[\r\n  {\r\n    \"id\": 1,\r\n    \"name\": \"Ödev Yap\",\r\n    \"description\": \"Matematik ödevini bitir\",\r\n    \"isCompleted\": false,\r\n    \"priority\": 3,\r\n    \"dueDate\": \"20-05-2025\"\r\n  },\r\n  {\r\n    \"id\": 2,\r\n    \"name\": \"Kitap Oku\",\r\n    \"description\": \"Roman oku\",\r\n    \"isCompleted\": true,\r\n    \"priority\": 2,\r\n    \"dueDate\": \"15-05-2025\"\r\n  }\r\n]"
+					"body": "[\r\n  {\r\n    \"id\": 1,\r\n    \"title\": \"Ödev Yap\",\r\n    \"description\": \"Matematik ödevini bitir\",\r\n    \"isCompleted\": false,\r\n    \"priority\": \"HIGH\",\r\n    \"userEmail\": \"kullanici@example.com\",\r\n    \"dueDate\": \"2025-05-20T00:00:00\"\r\n  },\r\n  {\r\n    \"id\": 2,\r\n    \"title\": \"Kitap Oku\",\r\n    \"description\": \"Roman oku\",\r\n    \"isCompleted\": true,\r\n    \"priority\": \"MEDIUM\",\r\n    \"userEmail\": \"kullanici@example.com\",\r\n    \"dueDate\": \"2025-05-15T00:00:00\"\r\n  }\r\n]\r\n"
 				}
 			]
 		},
@@ -244,7 +244,7 @@
 					"_postman_previewlanguage": null,
 					"header": null,
 					"cookie": [],
-					"body": "{\r\n  \"id\": 1,\r\n  \"name\": \"Ödev Yap\",\r\n  \"description\": \"Matematik ödevini bitir\",\r\n  \"isCompleted\": false,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"20-05-2025\"\r\n}\r\n"
+					"body": "{\r\n  \"id\": 1,\r\n  \"title\": \"Ödev Yap\",\r\n  \"description\": \"Matematik ödevini bitir\",\r\n  \"isCompleted\": false,\r\n  \"priority\": \"HIGH\",\r\n  \"userEmail\": \"kullanici@example.com\",\r\n  \"dueDate\": \"2025-05-20T00:00:00\"\r\n}\r\n\r\n"
 				}
 			]
 		},
