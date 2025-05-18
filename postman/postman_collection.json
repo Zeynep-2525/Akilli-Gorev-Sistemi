@@ -20,7 +20,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Yeni Görev\",\r\n  \"description\": \"Görev açıklaması\",\r\n  \"isCompleted\": false,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"20-05-2025\"\r\n}\r\n",
+					"raw": "{\r\n  \"title\": \"Yeni Görev\",\r\n  \"description\": \"Görev açıklaması\",\r\n  \"isCompleted\": false,\r\n  \"priority\": \"HIGH\",\r\n  \"userEmail\": \"kullanici@example.com\",\r\n  \"dueDate\": \"2025-05-20T00:00:00\"\r\n}\r\n\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -71,7 +71,7 @@
 						}
 					],
 					"cookie": [],
-					"body": "{\r\n  \"id\": 1,\r\n  \"name\": \"Ödev Yap\",\r\n  \"description\": \"Matematik ödevini bitir\",\r\n  \"isCompleted\": false,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"20-05-2025\"\r\n}\r\n"
+					"body": "{\r\n  \"title\": \"Yeni Görev\",\r\n  \"description\": \"Görev açıklaması\",\r\n  \"isCompleted\": false,\r\n  \"priority\": \"HIGH\",\r\n  \"userEmail\": \"kullanici@example.com\",\r\n  \"dueDate\": \"2025-05-20T00:00:00\"\r\n}\r\n\r\n"
 				}
 			]
 		},
@@ -88,7 +88,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"Güncellenmiş Görev\",\r\n  \"description\": \"Görev açıklaması güncellendi\",\r\n  \"isCompleted\": true,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"2025-06-01\"\r\n}\r\n\r\n",
+					"raw": "{\r\n  \"title\": \"Güncellenmiş Görev\",\r\n  \"description\": \"Görev açıklaması güncellendi\",\r\n  \"isCompleted\": true,\r\n  \"priority\": \"MEDIUM\",\r\n  \"userEmail\": \"kullanici@example.com\",\r\n  \"dueDate\": \"2025-06-01T00:00:00\"\r\n}\r\n\r\n\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -150,7 +150,7 @@
 					"_postman_previewlanguage": null,
 					"header": null,
 					"cookie": [],
-					"body": "{\r\n  \"id\": 1,\r\n  \"name\": \"Güncellenmiş Görev\",\r\n  \"description\": \"Görev açıklaması güncellendi\",\r\n  \"isCompleted\": true,\r\n  \"priority\": 3,\r\n  \"dueDate\": \"01-06-2025\"\r\n}"
+					"body": "{\r\n  \"title\": \"Güncellenmiş Görev\",\r\n  \"description\": \"Görev açıklaması güncellendi\",\r\n  \"isCompleted\": true,\r\n  \"priority\": \"MEDIUM\",\r\n  \"userEmail\": \"kullanici@example.com\",\r\n  \"dueDate\": \"2025-06-01T00:00:00\"\r\n}\r\n"
 				}
 			]
 		},
