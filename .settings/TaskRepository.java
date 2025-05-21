@@ -10,7 +10,7 @@ import java.util.List;
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
     // Önceliği belirli bir seviyenin üstünde olan ve tamamlanmamış görevleri getir
-    List<Task> findByPriorityGreaterThanEqualAndCompletedFalse(int priority);
+	List<Task> findByPriorityGreaterThanEqualAndCompletedFalse(TaskPriority priority);
 
     // Belirli bir e-posta adresine ait görevleri getir
     List<Task> findByUserEmail(String email);

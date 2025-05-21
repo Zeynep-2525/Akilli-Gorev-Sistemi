@@ -126,6 +126,7 @@ public class TaskService {
     }
 
     public List<Task> getHighPriorityTasks() {
-        return taskRepository.findByPriorityGreaterThanEqualAndCompletedFalse("HIGH");
+        return taskRepository.findByPriorityGreaterThanEqualAndCompletedFalse(TaskPriority.HIGH);
     }
+
 }
