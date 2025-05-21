@@ -1,4 +1,4 @@
-package com.smarttaskmanager;
+package com.odev.taskmanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,16 +8,14 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.boot.CommandLineRunner;
 import com.odev.taskmanager.service.TaskService;
 import com.odev.taskmanager.model.Task;
-import org.springframework.context.annotation.ComponentScan;
 import com.odev.taskmanager.model.TaskPriority;
 import java.time.LocalDateTime;
 
 
 
 
-@SpringBootApplication(scanBasePackages = "com.odev")
+@SpringBootApplication
 @EnableScheduling
-@ComponentScan(basePackages = {"com.odev.taskmanager", "com.odev.service"})
 
 
 public class TaskManagerApplication {
