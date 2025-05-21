@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/test-task")
-public class TestTaskController {    //TEST İÇİN YAZDIM DÜZELTİLECEK-Zeynep
+public class TestTaskController {   
 
     private final TaskService taskService;
 
@@ -24,7 +24,7 @@ public class TestTaskController {    //TEST İÇİN YAZDIM DÜZELTİLECEK-Zeynep
         
         task.setPriority(TaskPriority.valueOf("HIGH"));
 
-        task.setUserEmail("java.tester.odev@gmail.com"); // Mailtrap'teki alıcı adresiyle eşleşmeli!
+        task.setUserEmail("java.tester.odev@gmail.com"); 
 
         return taskService.saveTask(task);
     }
