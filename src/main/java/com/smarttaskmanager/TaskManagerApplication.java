@@ -15,9 +15,10 @@ import java.time.LocalDateTime;
 
 
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.odev")
 @EnableScheduling
-@ComponentScan(basePackages = {"com.smarttaskmanager", "com.odev.taskmanager", "com.odev.service"})
+@ComponentScan(basePackages = {"com.odev.taskmanager", "com.odev.service"})
+
 
 public class TaskManagerApplication {
 
