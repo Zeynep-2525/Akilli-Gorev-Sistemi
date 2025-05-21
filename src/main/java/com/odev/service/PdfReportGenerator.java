@@ -1,4 +1,3 @@
-
 package com.odev.service;
 
 import com.itextpdf.io.font.constants.StandardFonts;
@@ -31,37 +30,23 @@ import java.util.stream.Collectors;
 @Service
 public class PdfReportGenerator {
 
-    // Fontlar hazır, Bold ve Normal - PDF'de kullanacağız
     private final PdfFont boldFont;
     private final PdfFont normalFont;
     static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm - dd.MM.yyyy");
 
-    // Öncelik renkleri, göze hoş görünmesi için ayarlandı
     private static final Color[] PRIORITY_COLORS = {
-            new DeviceCmyk(0.00f, 0.60f, 1.00f, 0.00f),  // yüksek öncelik için mavi tonları
-            new DeviceCmyk(0.80f, 0, 0.40f, 0.10f),      // orta öncelik için turuncu gibi
-            new DeviceCmyk(1.00f, 0.20f, 0.00f, 0.10f)   // düşük öncelik için kırmızımsı
+            new DeviceCmyk(0.00f, 0.60f, 1.00f, 0.00f),
+            new DeviceCmyk(0.80f, 0, 0.40f, 0.10f),
+            new DeviceCmyk(1.00f, 0.20f, 0.00f, 0.10f)
     };
 
-    // Öncelik seviyesine göre renk dizisindeki yeri alıyoruz
-    private int getPriorityIndex(TaskPriority priority) {
-        return switch (priority) {
-            case HIGH -> 0;
-            case MEDIUM -> 1;
-            case LOW -> 2;
-        };
-    }
-
-    // Constructor - fontları başlatıyoruz
     public PdfReportGenerator() throws IOException {
         this.boldFont = PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD);
         this.normalFont = PdfFontFactory.createFont(StandardFonts.HELVETICA);
     }
 
-    // PDF oluşturma işlemi buradan başlıyor
     public void generatePdf(List<Task> tasks) throws IOException {
-        // Klasör yoksa oluşturuyoruz, olmazsa hata fırlatır
         File reportsDir = new File("reports");
         if (!reportsDir.exists()) {
             boolean created = reportsDir.mkdirs();
@@ -70,26 +55,21 @@ public class PdfReportGenerator {
             }
         }
 
-        // PDF dosyasını açıyoruz, sayfa boyutu A4
         try (PdfDocument pdfDoc = new PdfDocument(new PdfWriter(new FileOutputStream("reports/task_report.pdf")));
              Document document = new Document(pdfDoc, PageSize.A4)) {
 
             document.setMargins(40, 40, 40, 40);
 
-            // İlk sayfa kapak sayfası
             addCoverPage(document);
-
-            // Sonraki sayfada görev tablosu var
             document.add(new AreaBreak());
+
             addTasksTable(document, tasks);
-
-            // Son olarak da istatistikler
             document.add(new AreaBreak());
+
             addStatistics(document, tasks);
         }
     }
 
-    // Kapak sayfasını hazırlıyoruz, fazla bir şey yok
     private void addCoverPage(Document document) {
         document.add(new Paragraph("Task Management Report")
                 .setFont(boldFont)
@@ -105,7 +85,6 @@ public class PdfReportGenerator {
                 .setMarginTop(430));
     }
 
-    // Görev listesini tablo şeklinde gösteriyoruz
     private void addTasksTable(Document document, List<Task> tasks) {
         document.add(new Paragraph("Task Overview")
                 .setFont(boldFont)
@@ -116,19 +95,16 @@ public class PdfReportGenerator {
         Table table = new Table(UnitValue.createPercentArray(new float[]{5, 15, 50, 15, 15}));
         table.setWidth(UnitValue.createPercentValue(100));
 
-        // Tablo başlıkları ekleniyor
         table.addHeaderCell(createColoredHeaderCell("    "));
         table.addHeaderCell(createColoredHeaderCell("Task"));
         table.addHeaderCell(createColoredHeaderCell("Description"));
         table.addHeaderCell(createColoredHeaderCell("Due Date"));
         table.addHeaderCell(createColoredHeaderCell("Priority"));
 
-        // Görevleri tabloya satır satır ekliyoruz
         for (Task task : tasks) {
             LocalDateTime dueDateTime = task.getDueDate();
             boolean isDelayed = false;
 
-            // Gecikmiş görevleri kırmızı yapabilmek için kontrol
             if (dueDateTime != null) {
                 if (!task.isCompleted() && dueDateTime.isBefore(LocalDateTime.now())) {
                     isDelayed = true;
@@ -145,7 +121,6 @@ public class PdfReportGenerator {
         document.add(table);
     }
 
-    // İstatistik kısmını oluşturuyoruz
     private void addStatistics(Document document, List<Task> tasks) {
         document.add(new Paragraph("Task Analytics")
                 .setFont(boldFont)
@@ -157,7 +132,6 @@ public class PdfReportGenerator {
         addStatusDetails(document, tasks);
     }
 
-    // Görev durumlarını tablo şeklinde gösteriyoruz
     private void addDistributionChart(Document document, List<Task> tasks) {
         document.add(new Paragraph("Task Distribution")
                 .setFont(boldFont)
@@ -194,7 +168,6 @@ public class PdfReportGenerator {
         document.add(chart);
     }
 
-    // Duruma göre görevlerin detaylarını yazıyoruz
     private void addStatusDetails(Document document, List<Task> tasks) {
         document.add(new Paragraph("Status Breakdown")
                 .setFont(boldFont)
@@ -235,7 +208,14 @@ public class PdfReportGenerator {
         }
     }
 
-    // Status hücresi oluşturuyoruz, gecikme varsa kırmızı ünlem koyuyoruz
+    private int getPriorityIndex(TaskPriority priority) {
+        return switch (priority) {
+            case HIGH -> 0;
+            case MEDIUM -> 1;
+            case LOW -> 2;
+        };
+    }
+
     Cell createStatusCell(boolean isCompleted, boolean isDelayed) {
         String statusText = isDelayed ? "!" : " ";
         Color statusColor = isDelayed ? ColorConstants.RED : ColorConstants.BLACK;
@@ -249,7 +229,6 @@ public class PdfReportGenerator {
                 .setPadding(5);
     }
 
-    // Gecikme kontrolü
     boolean isTaskDelayed(Task task) {
         if (task.isCompleted() || task.getDueDate() == null) {
             return false;
@@ -257,7 +236,6 @@ public class PdfReportGenerator {
         return task.getDueDate().isBefore(LocalDateTime.now());
     }
 
-    // Tablo başlık hücresi, arka plan koyduk biraz belirgin olsun diye
     Cell createColoredHeaderCell(String text) {
         return new Cell()
                 .add(new Paragraph(text)
@@ -269,7 +247,6 @@ public class PdfReportGenerator {
                 .setPadding(8);
     }
 
-    // Görev başlığı hücresi, öncelik rengini uyguluyoruz
     Cell createTaskCell(String text, int priorityIndex) {
         Color textColor = (priorityIndex >= 0 && priorityIndex < PRIORITY_COLORS.length)
                 ? PRIORITY_COLORS[priorityIndex]
@@ -283,7 +260,6 @@ public class PdfReportGenerator {
                 .setPadding(5);
     }
 
-    // Açıklama hücresi, çok uzunsa kısaltıyoruz
     Cell createDescriptionCell(String text) {
         String displayText = text.length() > 150 ? text.substring(0, 150) + "..." : text;
 
@@ -295,7 +271,6 @@ public class PdfReportGenerator {
                 .setTextAlignment(TextAlignment.LEFT);
     }
 
-    // Öncelik hücresi, yazı tipi standart
     Cell createPriorityCell(TaskPriority priority) {
         return new Cell()
                 .add(new Paragraph(priority.toString())
@@ -305,7 +280,6 @@ public class PdfReportGenerator {
                 .setPadding(5);
     }
 
-    // Tarih ve saat hücresi, boşsa "-" koyuyoruz
     Cell createDateTimeCell(LocalDateTime dateTime) {
         String text = (dateTime != null) ? dateTime.format(DATE_TIME_FORMATTER) : "-";
 
@@ -318,7 +292,6 @@ public class PdfReportGenerator {
                 .setPadding(5);
     }
 
-    // Duruma göre görev sayısını sayıyoruz
     long countByStatus(List<Task> tasks, String status) {
         return tasks.stream()
                 .filter(t -> {
@@ -334,7 +307,6 @@ public class PdfReportGenerator {
                 .count();
     }
 
-    // Duruma göre görevleri filtreliyoruz
     List<Task> filterByStatus(List<Task> tasks, String status) {
         return tasks.stream()
                 .filter(t -> {
@@ -350,10 +322,7 @@ public class PdfReportGenerator {
                 .collect(Collectors.toList());
     }
 
-    // Basit yüzde hesaplama fonksiyonu
     double calculatePercentage(long count, long total) {
         return total == 0 ? 0 : (count * 100.0 / total);
     }
 }
-
-

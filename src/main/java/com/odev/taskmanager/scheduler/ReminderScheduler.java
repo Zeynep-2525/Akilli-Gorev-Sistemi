@@ -29,10 +29,17 @@ public class ReminderScheduler {
     // Her sabah saat 08:00'de çalışır
     @Scheduled(cron = "0 0 8 * * *")
     public void sendMorningReminders() {
-        log.info("Zamanlayıcı çalıştı: Sabah hatırlatmaları gönderiliyor...");
+        log.info("Hatırlatma gönderme işlemi başlatıldı.");
 
         List<Task> highPriorityTasks = taskService.getHighPriorityTasks();
+
+        if (highPriorityTasks.isEmpty()) {
+            log.info("Öncelikli görev bulunamadı, e-posta gönderimi yapılmadı.");
+            return;
+        }
+
         String quote = motivationService.getDailyQuote(); // Motivasyon sözü çek
+        log.info("Günün motivasyon sözü alındı.");
 
         for (Task task : highPriorityTasks) {
             String message = String.format(
@@ -41,11 +48,15 @@ public class ReminderScheduler {
                     task.getDescription(),
                     quote
             );
-            emailService.sendEmail(task.getUserEmail(), "Öncelikli Görev Hatırlatması", message);
+
+            try {
+                emailService.sendEmail(task.getUserEmail(), "Öncelikli Görev Hatırlatması", message);
+                log.info("Hatırlatma e-postası gönderildi: Kullanıcı={}", task.getUserEmail());
+            } catch (Exception e) {
+                log.error("E-posta gönderilemedi: Kullanıcı={}, Hata={}", task.getUserEmail(), e.getMessage());
+            }
         }
 
-        log.info("Hatırlatma e-postaları gönderildi. Görev sayısı: {}", highPriorityTasks.size());
+        log.info("Hatırlatma gönderme işlemi tamamlandı. Görev sayısı: {}", highPriorityTasks.size());
     }
 }
-
-
